@@ -11,7 +11,6 @@ This assessment evaluates your **frontend engineering skills**. You'll build a p
 - Global state management (Context API)
 - Optimistic UI updates and error handling
 - Form validation and user feedback
-- E2E testing
 - Performance optimization and accessibility
 - Responsive design with Tailwind CSS
 
@@ -57,12 +56,10 @@ Visit [http://localhost:3000](http://localhost:3000)
 Implement complete authentication:
 
 - [ ] Registration page with form validation
-  - Email validation (proper format)
-  - Password strength indicator
-  - Confirm password matching
+  - Username and password validation (allowed characters and length)
   - Display validation errors
 - [ ] Login page
-  - Email and password fields
+  - Username and password fields
   - Error handling for invalid credentials
 - [ ] JWT token management
   - Store tokens securely (httpOnly cookies or localStorage with XSS protection)
@@ -72,7 +69,7 @@ Implement complete authentication:
   - Middleware or HOC for route protection
 - [ ] User profile display
   - Show logged-in user info in header
-  - Logout functionality
+  - Logout functionality (clear token in frontend)
 
 ### Task 2: Todo Management
 
@@ -80,15 +77,11 @@ Build comprehensive todo interface:
 
 #### List View
 
-- [ ] Display todo stats of authenticated user
 - [ ] Display all todos and paginated (20 per page)
 - [ ] Filtering by:
-  - Category (dropdown/chips)
   - Priority (HIGH, MEDIUM, LOW)
-  - Completion status
-  - Due date range
 - [ ] Search by title functionality (debounced, min 2 chars)
-- [ ] Sorting options (created_at, due_date, priority) supporting both asc and desc
+- [ ] Sorting options by created_at supporting both asc and desc
 - [ ] Empty states with helpful messages
 - [ ] Skeleton loaders during fetch
 - [ ] Infinite scroll or pagination controls
@@ -101,19 +94,14 @@ Build comprehensive todo interface:
 - [ ] Delete with confirmation modal (only owner)
 - [ ] Visual indicators for:
   - Priority level (colors/badges)
-  - Overdue todos
-  - Category tags
-- [ ] Batch operations (select multiple, bulk delete) (only owner)
 
 #### Create/Edit Forms
 
 - [ ] Modal or slide-over for todo creation
 - [ ] Form fields:
   - Title (required, max 200 chars)
-  - Description (textarea, optional)
+  - Description (textarea)
   - Priority selector
-  - Category input (autocomplete with existing)
-  - Due date picker
 - [ ] Real-time validation
 - [ ] Cancel and save actions
 - [ ] Form dirty state handling (warn before leaving)
@@ -133,11 +121,8 @@ Implement production-ready UX patterns:
 
 - [ ] Error boundaries for React errors
 - [ ] API error handling with retry logic
-- [ ] Network error detection (offline mode)
 - [ ] Toast notifications for success/error
 - [ ] Form validation errors displayed inline
-- [ ] 404 page for invalid routes
-- [ ] Graceful degradation
 
 #### Loading States
 
@@ -146,49 +131,7 @@ Implement production-ready UX patterns:
 - [ ] Progress indicators for long operations
 - [ ] Suspense boundaries
 
-### Task 4: Component Architecture
-
-**Directory**: `components/`
-
-Build reusable, well-structured components:
-
-Component Requirements:
-
-- [ ] TypeScript using `type` for all props
-- [ ] Proper prop validation
-- [ ] Accessible (ARIA labels, keyboard navigation)
-- [ ] Responsive design
-- [ ] No comments
-- [ ] Composable and reusabl
-
-### Task 5: Testing
-
-Implement comprehensive test suite:
-
-#### E2E Tests (Playwright)
-
-Test scenarios:
-
-- [ ] User registration and login flow
-- [ ] Create, edit, delete todos
-- [ ] Filtering and searching
-- [ ] Pagination
-- [ ] Error scenarios (network failure, auth errors)
-
-**Target**: 70%+ code coverage
-
-### Task 6: Performance Optimization
-
-- [ ] Implement code splitting (dynamic imports)
-- [ ] Lazy load components
-- [ ] Debounce search input
-- [ ] Throttle scroll events
-- [ ] Use Next.js server components where appropriate
-- [ ] Memoize expensive computations (optional)
-- [ ] Prevent unnecessary re-renders (optional)
-- [ ] Implement virtual scrolling for large lists (optional)
-
-### Task 7: Accessibility & UX
+### Task 4: Accessibility & UX
 
 - [ ] Semantic HTML throughout
 - [ ] ARIA labels and roles
@@ -200,7 +143,7 @@ Test scenarios:
 - [ ] Error announcements
 - [ ] Mobile-friendly touch targets
 
-### Task 8: Responsive Design
+### Task 5: Responsive Design
 
 Using Tailwind CSS:
 
@@ -212,19 +155,11 @@ Using Tailwind CSS:
 
 ---
 
-## 🚀 Bonus Points
-
-- [ ] Dark mode toggle
-- [ ] Internationalization (i18n)
-
----
-
 ## ✅ Submission Checklist
 
 Before submitting:
 
 - [ ] All features implemented and working
-- [ ] Tests written and passing (`npm test`, `npm run test:e2e`)
 - [ ] No TypeScript errors (`npm run type-check`)
 - [ ] No linting errors (`npm run lint`)
 - [ ] Responsive on mobile, tablet, desktop
