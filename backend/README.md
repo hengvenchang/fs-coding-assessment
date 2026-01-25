@@ -25,14 +25,17 @@ This assessment evaluates your ability to build a **production-grade RESTful API
 1. Clone this repository
 2. Create a `.env` file (see `.env.example`)
 3. Install dependencies:
+
    ```bash
    uv sync
    ```
 4. Run the development server:
+
    ```bash
    uv run uvicorn app.main:app --reload
    ```
 5. Run all tests:
+
    ```bash
    uv run pytest
    ```
