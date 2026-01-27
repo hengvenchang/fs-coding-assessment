@@ -13,6 +13,7 @@ dependencies = [
     "pyjwt>=2.10.1",
     "python-dotenv>=1.1.0",
     "sqlmodel>=0.0.31",
+    "greenlet>=2.0.2"
 ]
 
 [dependency-groups]
