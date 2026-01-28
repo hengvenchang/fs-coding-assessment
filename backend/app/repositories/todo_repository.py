@@ -2,7 +2,7 @@
 
 import uuid
 from typing import Optional
-from sqlalchemy import select, func, and_, or_
+from sqlalchemy import select, func, and_, or_, case
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select as sqlmodel_select
 
@@ -206,34 +206,34 @@ class TodoRepository:
         Returns:
             Dictionary with total, completed, pending, and by_priority counts
         """
-        user_todos_filter = Todo.user_id == user_id
-        
-        # Get total count
-        total_stmt = select(func.count(Todo.id)).where(user_todos_filter)
-        total_result = await self.session.execute(total_stmt)
-        total = total_result.scalar() or 0
-        
-        # Get completed count
-        completed_stmt = select(func.count(Todo.id)).where(
-            and_(user_todos_filter, Todo.completed == True)
-        )
-        completed_result = await self.session.execute(completed_stmt)
-        completed = completed_result.scalar() or 0
-        
-        # Get pending count
+
+        # Aggregate total and completed in one query
+        total_completed_stmt = select(
+            func.count(Todo.id).label("total"),
+            func.count(case((Todo.completed == True, 1))).label("completed")
+        ).where(Todo.user_id == user_id)
+
+        total_completed_result = await self.session.execute(total_completed_stmt)
+        row = total_completed_result.one()
+        total = row.total or 0
+        completed = row.completed or 0
         pending = total - completed
-        
-        # Get count by priority
-        by_priority = {}
-        for priority in [Priority.LOW, Priority.MEDIUM, Priority.HIGH]:
-            priority_stmt = select(func.count(Todo.id)).where(
-                and_(user_todos_filter, Todo.priority == priority)
-            )
-            priority_result = await self.session.execute(priority_stmt)
-            count = priority_result.scalar() or 0
-            if count > 0:
-                by_priority[priority.value] = count
-        
+
+        # Aggregate count by priority
+        priority_stmt = (
+            select(Todo.priority, func.count(Todo.id))
+            .where(Todo.user_id == user_id)
+            .group_by(Todo.priority)
+        )
+        priority_result = await self.session.execute(priority_stmt)
+
+        # Initialize all priorities to 0
+        by_priority = {priority.value: 0 for priority in Priority}
+
+        # Update counts from DB
+        for priority, count in priority_result.all():
+            by_priority[priority.value] = count
+
         return {
             "total": total,
             "completed": completed,
