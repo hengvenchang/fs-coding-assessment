@@ -1,7 +1,10 @@
 from functools import lru_cache
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class Settings(BaseSettings):
+    """Application settings loaded from environment variables."""
     # Database
     DATABASE_URL: str
     DATABASE_POOL_SIZE: int = 5
@@ -26,5 +29,10 @@ class Settings(BaseSettings):
 
 
 @lru_cache
-def get_settings():
+def get_settings() -> Settings:
+    """Get cached settings instance.
+    
+    Returns:
+        Settings instance
+    """
     return Settings()
