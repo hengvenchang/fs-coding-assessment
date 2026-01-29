@@ -56,60 +56,70 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(
     async (username: string, password: string) => {
+      // Store previous state for rollback
+      const previousUser = user;
+      const previousToken = token;
+
       try {
         setIsLoading(true);
         setError(null);
         const response: AuthResponse = await authService.login({ username, password });
         
-        const token = response.access_token;
-        setToken(token);
+        const newToken = response.access_token;
+        setToken(newToken);
         
         // Extract user info from token
-        const userId = getUserIdFromToken(token);
-        const tokenUsername = getUsernameFromToken(token);
+        const userId = getUserIdFromToken(newToken);
+        const tokenUsername = getUsernameFromToken(newToken);
         if (userId && tokenUsername) {
           setUser({ id: userId, username: tokenUsername });
         }
       } catch (err) {
+        // Rollback on error
+        setUser(previousUser);
+        setToken(previousToken);
         const message = err instanceof Error ? err.message : "Login failed";
         setError(message);
-        setToken(null);
-        setUser(null);
         throw err;
       } finally {
         setIsLoading(false);
       }
     },
-    []
+    [user, token]
   );
 
   const register = useCallback(
     async (username: string, password: string) => {
+      // Store previous state for rollback
+      const previousUser = user;
+      const previousToken = token;
+
       try {
         setIsLoading(true);
         setError(null);
         const response: AuthResponse = await authService.register({ username, password });
         
-        const token = response.access_token;
-        setToken(token);
+        const newToken = response.access_token;
+        setToken(newToken);
         
         // Extract user info from token
-        const userId = getUserIdFromToken(token);
-        const tokenUsername = getUsernameFromToken(token);
+        const userId = getUserIdFromToken(newToken);
+        const tokenUsername = getUsernameFromToken(newToken);
         if (userId && tokenUsername) {
           setUser({ id: userId, username: tokenUsername });
         }
       } catch (err) {
+        // Rollback on error
+        setUser(previousUser);
+        setToken(previousToken);
         const message = err instanceof Error ? err.message : "Registration failed";
         setError(message);
-        setToken(null);
-        setUser(null);
         throw err;
       } finally {
         setIsLoading(false);
       }
     },
-    []
+    [user, token]
   );
 
   const logout = useCallback(async () => {

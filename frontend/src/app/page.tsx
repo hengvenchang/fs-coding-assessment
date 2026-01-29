@@ -120,7 +120,7 @@ export default function Home() {
           {/* Header Section */}
           <div className="flex flex-col gap-6 mb-8">
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-gray-900">My Todos</h1>
+              <h1 className="text-3xl font-bold text-gray-600">My Todos</h1>
               <Button
                 onClick={() => setIsCreateOpen(true)}
                 size="lg"
