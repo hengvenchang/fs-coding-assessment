@@ -65,7 +65,7 @@ async def test_user(async_session):
         id=uuid.uuid4(),
         username="testuser",
         email="testuser@example.com",
-        hashed_password="hashed_password_here",
+        hashed_password="1234%@39393Helloworld",
         status=UserStatus.ACTIVE,
     )
     async_session.add(user)
@@ -81,7 +81,7 @@ async def test_user_2(async_session):
         id=uuid.uuid4(),
         username="testuser2",
         email="testuser2@example.com",
-        hashed_password="hashed_password_here",
+        hashed_password="1234%@39393Helloworld",
         status=UserStatus.ACTIVE,
     )
     async_session.add(user)
