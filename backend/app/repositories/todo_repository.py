@@ -75,7 +75,8 @@ class TodoRepository:
         
         if completed is not None:
             filters.append(Todo.completed == completed)
-        
+
+        # Search through title and description
         if search:
             search_term = f"%{search}%"
             filters.append(
