@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth";
 import { Button } from "@/components/ui/button";
@@ -24,9 +24,10 @@ import { AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const [isPending, setIsPending] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
+  // Initialize form first (before any early returns)
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -35,6 +36,25 @@ export default function LoginPage() {
     },
   });
 
+  // Redirect to home if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      router.push("/");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-flex animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsPending(true);
@@ -42,7 +62,7 @@ export default function LoginPage() {
       toast.success("Login successful!");
       // Small delay to ensure state updates before redirect
       setTimeout(() => {
-        router.push("/todos");
+        router.push("/");
       }, 100);
     } catch (error) {
       const message =

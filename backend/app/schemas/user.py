@@ -9,7 +9,7 @@ from app.schemas.mixin import TimeStampMixin
 
 class UserRegister(SQLModel):
     username: str = Field(max_length=255)
-    email: EmailStr | None = Field(default=None, max_length=255)
+    email: EmailStr = Field(max_length=255)
     password: str = Field(min_length=8, max_length=128)
 
 

@@ -18,9 +18,11 @@ def get_password_hash(password: str) -> str:
     return password_hash.hash(password)
 
 
-def create_access_token(subject: str, expires_delta: timedelta) -> str:
+def create_access_token(subject: str, expires_delta: timedelta, username: str = None) -> str:
     expire = datetime.now(timezone.utc) + expires_delta
     to_encode = {"sub": str(subject), "exp": expire}
+    if username:
+        to_encode["username"] = username
     encoded_jwt = jwt.encode(
         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
     )

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { User, AuthResponse } from "@/lib/types";
 import { apiClient } from "@/lib/api";
+import { getUserIdFromToken, getUsernameFromToken, isTokenExpired } from "@/lib/jwt";
 
 interface AuthContextType {
   user: User | null;
@@ -10,7 +11,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
   isAuthenticated: boolean;
@@ -30,7 +31,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (storedToken) {
       try {
         const parsedToken = JSON.parse(storedToken);
-        setToken(parsedToken);
+        
+        // Check if token is expired
+        if (!isTokenExpired(parsedToken)) {
+          const userId = getUserIdFromToken(parsedToken);
+          const username = getUsernameFromToken(parsedToken);
+          if (userId && username) {
+            setToken(parsedToken);
+            // Create user object from token with username
+            setUser({ id: userId, username });
+          }
+        } else {
+          // Token is expired, clear it
+          localStorage.removeItem("auth_token");
+        }
       } catch {
         localStorage.removeItem("auth_token");
       }
@@ -47,13 +61,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setError(null);
         const response: AuthResponse = await apiClient.login({ username, password });
         
-        // Get current user
-        const user = await apiClient.getCurrentUser();
-        setToken(response.access_token);
-        setUser(user);
+        const token = response.access_token;
+        setToken(token);
+        
+        // Extract user info from token
+        const userId = getUserIdFromToken(token);
+        const tokenUsername = getUsernameFromToken(token);
+        if (userId && tokenUsername) {
+          setUser({ id: userId, username: tokenUsername });
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : "Login failed";
         setError(message);
+        setToken(null);
+        setUser(null);
         throw err;
       } finally {
         setIsLoading(false);
@@ -63,19 +84,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const register = useCallback(
-    async (username: string, password: string) => {
+    async (username: string, email: string, password: string) => {
       try {
         setIsLoading(true);
         setError(null);
-        const response: AuthResponse = await apiClient.register({ username, password });
+        const response: AuthResponse = await apiClient.register({ username, email, password });
         
-        // Get current user
-        const user = await apiClient.getCurrentUser();
-        setToken(response.access_token);
-        setUser(user);
+        const token = response.access_token;
+        setToken(token);
+        
+        // Extract user info from token
+        const userId = getUserIdFromToken(token);
+        const tokenUsername = getUsernameFromToken(token);
+        if (userId && tokenUsername) {
+          setUser({ id: userId, username: tokenUsername });
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : "Registration failed";
         setError(message);
+        setToken(null);
+        setUser(null);
         throw err;
       } finally {
         setIsLoading(false);
@@ -92,6 +120,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setToken(null);
       setError(null);
     } catch (err) {
+      // Still clear auth state even if logout fails
+      setUser(null);
+      setToken(null);
       const message = err instanceof Error ? err.message : "Logout failed";
       setError(message);
     } finally {

@@ -67,7 +67,7 @@ class UserService:
 
         return AuthToken(
             access_token=security.create_access_token(
-                subject=user.id, expires_delta=access_token_expires
+                subject=user.id, expires_delta=access_token_expires, username=user.username
             ),
             expires_in=self.settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
             token_type="bearer",

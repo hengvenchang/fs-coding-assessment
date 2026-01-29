@@ -13,6 +13,9 @@ const passwordSchema = z
   .min(8, "Password must be at least 8 characters")
   .max(100, "Password must be at most 100 characters");
 
+// Email validation
+const emailSchema = z.string().email("Invalid email address");
+
 export const loginSchema = z.object({
   username: usernameSchema,
   password: passwordSchema,
@@ -20,6 +23,7 @@ export const loginSchema = z.object({
 
 export const registerSchema = z.object({
   username: usernameSchema,
+  email: emailSchema,
   password: passwordSchema,
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {

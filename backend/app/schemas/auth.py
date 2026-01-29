@@ -9,3 +9,4 @@ class AuthToken(SQLModel):
 
 class TokenPayload(SQLModel):
     sub: str | None = None
+    username: str | None = None

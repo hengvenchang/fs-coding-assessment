@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth";
 import { Button } from "@/components/ui/button";
@@ -24,24 +24,45 @@ import { AlertCircle } from "lucide-react";
 
 export default function RegisterPage() {
   const [isPending, setIsPending] = useState(false);
-  const { register } = useAuth();
+  const { register, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
+  // Initialize form first (before any early returns)
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       username: "",
+      email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
+  // Redirect to home if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      router.push("/");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-flex animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setIsPending(true);
-      await register(data.username, data.password);
-      toast.success("Registration successful!");
-      router.push("/todos");
+      await register(data.username, data.email, data.password);
+      toast.success("Registration successful! Please login with your credentials.");
+      router.push("/login");
     } catch (error) {
       const message =
         error instanceof Error
@@ -95,6 +116,26 @@ export default function RegisterPage() {
                   <p className="text-xs text-gray-500 mt-1">
                     3-50 characters, letters, numbers, and underscores only
                   </p>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="email@example.com"
+                      disabled={isPending}
+                      {...field}
+                      autoComplete="email"
+                    />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
