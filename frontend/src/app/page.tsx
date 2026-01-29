@@ -91,6 +91,8 @@ export default function Home() {
     try {
       setIsTogglingId(id);
       await toggleComplete(id, completed);
+      // Refetch to update pagination and total count
+      fetchTodos(currentPage, ITEMS_PER_PAGE, priorityFilter, debouncedSearch.trim() ? debouncedSearch : undefined);
     } finally {
       setIsTogglingId(null);
     }
@@ -136,7 +138,7 @@ export default function Home() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="Search todos... (title, description)"
+                  placeholder="Search Title, Description..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -151,9 +153,9 @@ export default function Home() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Priorities</SelectItem>
-                  <SelectItem value="HIGH">High Priority</SelectItem>
-                  <SelectItem value="MEDIUM">Medium Priority</SelectItem>
-                  <SelectItem value="LOW">Low Priority</SelectItem>
+                  <SelectItem value="HIGH">High</SelectItem>
+                  <SelectItem value="MEDIUM">Medium</SelectItem>
+                  <SelectItem value="LOW">Low</SelectItem>
                 </SelectContent>
               </Select>
             </div>

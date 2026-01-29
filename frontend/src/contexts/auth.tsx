@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { User, AuthResponse } from "@/lib/types";
-import { apiClient } from "@/lib/api";
+import { authService } from "@/lib/api/auth.service";
 import { getUserIdFromToken, getUsernameFromToken, isTokenExpired } from "@/lib/jwt";
 
 interface AuthContextType {
@@ -11,7 +11,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
+  register: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
   isAuthenticated: boolean;
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         setIsLoading(true);
         setError(null);
-        const response: AuthResponse = await apiClient.login({ username, password });
+        const response: AuthResponse = await authService.login({ username, password });
         
         const token = response.access_token;
         setToken(token);
@@ -84,11 +84,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const register = useCallback(
-    async (username: string, email: string, password: string) => {
+    async (username: string, password: string) => {
       try {
         setIsLoading(true);
         setError(null);
-        const response: AuthResponse = await apiClient.register({ username, email, password });
+        const response: AuthResponse = await authService.register({ username, password });
         
         const token = response.access_token;
         setToken(token);
@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     try {
       setIsLoading(true);
-      await apiClient.logout();
+      await authService.logout();
       setUser(null);
       setToken(null);
       setError(null);

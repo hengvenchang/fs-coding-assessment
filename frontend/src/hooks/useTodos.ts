@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { apiClient } from "@/lib/api";
+import { todoService } from "@/lib/api/todo.service";
 import { Todo, CreateTodoRequest, UpdateTodoRequest } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -14,7 +14,7 @@ export function useTodos() {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await apiClient.getTodos(page, page_size, priority, search);
+        const response = await todoService.getTodos(page, page_size, priority, search);
         setTodos(response.items);
         setTotal(response.total);
       } catch (err) {
@@ -31,7 +31,7 @@ export function useTodos() {
   const createTodo = useCallback(
     async (data: CreateTodoRequest) => {
       try {
-        const newTodo = await apiClient.createTodo(data);
+        const newTodo = await todoService.createTodo(data);
         setTodos((prev) => [newTodo, ...prev]);
         toast.success("Todo created successfully!");
         return newTodo;
@@ -47,7 +47,7 @@ export function useTodos() {
   const updateTodo = useCallback(
     async (id: string, data: UpdateTodoRequest) => {
       try {
-        const updated = await apiClient.updateTodo(id, data);
+        const updated = await todoService.updateTodo(id, data);
         setTodos((prev) =>
           prev.map((todo) => (todo.id === id ? updated : todo))
         );
@@ -65,7 +65,7 @@ export function useTodos() {
   const deleteTodo = useCallback(
     async (id: string) => {
       try {
-        await apiClient.deleteTodo(id);
+        await todoService.deleteTodo(id);
         setTodos((prev) => prev.filter((todo) => todo.id !== id));
         setTotal((prev) => prev - 1);
         toast.success("Todo deleted successfully!");
@@ -81,7 +81,7 @@ export function useTodos() {
   const toggleComplete = useCallback(
     async (id: string, completed: boolean) => {
       try {
-        await apiClient.updateTodo(id, { completed: !completed });
+        await todoService.toggleComplete(id);
         setTodos((prev) =>
           prev.map((todo) =>
             todo.id === id ? { ...todo, completed: !completed } : todo
