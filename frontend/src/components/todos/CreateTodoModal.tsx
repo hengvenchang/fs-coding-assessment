@@ -101,7 +101,7 @@ export function CreateTodoModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[500px]" aria-describedby="create-todo-description">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto" aria-describedby="create-todo-description">
         <DialogHeader>
           <DialogTitle>Create New Todo</DialogTitle>
           <DialogDescription id="create-todo-description">

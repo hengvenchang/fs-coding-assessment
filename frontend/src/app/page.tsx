@@ -132,19 +132,19 @@ export default function Home() {
         
         <Header />
         
-        <main id="main-content" className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full" role="main" aria-label="Todo list">
+        <main id="main-content" className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 w-full" role="main" aria-label="Todo list">
           {/* Header Section */}
-          <div className="flex flex-col gap-6 mb-8">
-            <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-gray-900">My Todos</h1>
+          <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Todos</h1>
               <Button
                 onClick={() => setIsCreateOpen(true)}
                 size="lg"
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto"
                 aria-label="Create new todo"
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
-                New Todo
+                <span>New Todo</span>
               </Button>
             </div>
 
@@ -236,16 +236,17 @@ export default function Home() {
 
           {/* Pagination */}
           {!isLoading && totalPages > 1 && (
-            <nav aria-label="Todo pagination" className="flex justify-between items-center">
+            <nav aria-label="Todo pagination" className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <Button
                 variant="outline"
                 disabled={!hasPrevPage}
                 onClick={() => setCurrentPage((prev) => prev - 1)}
                 aria-label={`Go to previous page, page ${currentPage - 1}`}
+                className="w-full sm:w-auto"
               >
                 Previous
               </Button>
-              <span className="text-sm text-gray-600" aria-current="page" aria-live="polite">
+              <span className="text-sm text-gray-600 order-first sm:order-none" aria-current="page" aria-live="polite">
                 Page {currentPage} of {totalPages}
               </span>
               <Button
@@ -253,6 +254,7 @@ export default function Home() {
                 disabled={!hasNextPage}
                 onClick={() => setCurrentPage((prev) => prev + 1)}
                 aria-label={`Go to next page, page ${currentPage + 1}`}
+                className="w-full sm:w-auto"
               >
                 Next
               </Button>

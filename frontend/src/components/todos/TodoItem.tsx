@@ -32,10 +32,10 @@ export function TodoItem({
   };
 
   return (
-    <Card className={`p-4 transition-opacity ${isToggling ? "opacity-60" : ""}`} role="article" aria-label={`Todo: ${todo.title}`}>
-      <div className="flex gap-4">
+    <Card className={`p-3 md:p-4 transition-opacity ${isToggling ? "opacity-60" : ""}`} role="article" aria-label={`Todo: ${todo.title}`}>
+      <div className="flex gap-3 md:gap-4">
         {/* Checkbox */}
-        <div className="flex-shrink-0 pt-1">
+        <div className="flex-shrink-0 pt-0.5 md:pt-1">
           <Checkbox
             checked={todo.completed}
             onCheckedChange={handleToggle}
@@ -47,19 +47,25 @@ export function TodoItem({
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start gap-3">
-            <div className="flex-1">
-              <h3
-                className={`font-semibold text-base transition-all ${
-                  todo.completed
-                    ? "line-through text-gray-500"
-                    : "text-gray-900"
-                }`}
-              >
-                {todo.title}
-              </h3>
+          <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start gap-2 mb-1">
+                <h3
+                  className={`font-semibold text-sm md:text-base transition-all flex-1 ${
+                    todo.completed
+                      ? "line-through text-gray-500"
+                      : "text-gray-900"
+                  }`}
+                >
+                  {todo.title}
+                </h3>
+                {/* Priority Badge - Mobile (inline with title) */}
+                <Badge className={`flex-shrink-0 sm:hidden text-xs ${getPriorityColor(todo.priority)}`} aria-label={`Priority: ${todo.priority}`}>
+                  {todo.priority}
+                </Badge>
+              </div>
               {todo.description && (
-                <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                <p className="text-xs md:text-sm text-gray-600 mt-1 line-clamp-2 break-words">
                   {todo.description}
                 </p>
               )}
@@ -71,15 +77,15 @@ export function TodoItem({
               </div>
             </div>
 
-            {/* Priority Badge */}
-            <Badge className={`flex-shrink-0 ${getPriorityColor(todo.priority)}`} aria-label={`Priority: ${todo.priority}`}>
+            {/* Priority Badge - Desktop */}
+            <Badge className={`hidden sm:flex flex-shrink-0 self-start ${getPriorityColor(todo.priority)}`} aria-label={`Priority: ${todo.priority}`}>
               {todo.priority}
             </Badge>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex-shrink-0 flex gap-2" role="group" aria-label="Todo actions">
+        <div className="flex-shrink-0 flex flex-col sm:flex-row gap-2" role="group" aria-label="Todo actions">
           {isOwner && (
             <Button
               variant="outline"

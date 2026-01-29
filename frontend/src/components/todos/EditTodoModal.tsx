@@ -117,7 +117,7 @@ export function EditTodoModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[500px]" aria-describedby="edit-todo-description">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto" aria-describedby="edit-todo-description">
         <DialogHeader>
           <DialogTitle>Edit Todo</DialogTitle>
           <DialogDescription id="edit-todo-description">

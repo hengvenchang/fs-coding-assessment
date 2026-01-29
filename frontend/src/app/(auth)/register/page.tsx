@@ -75,10 +75,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
+      <Card className="w-full max-w-md p-6 md:p-8">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Create Account</h1>
           <p className="text-sm text-gray-600 mt-2" id="register-description">
             Sign up to start managing your todos
           </p>

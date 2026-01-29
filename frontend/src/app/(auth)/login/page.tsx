@@ -75,10 +75,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Login</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
+      <Card className="w-full max-w-md p-6 md:p-8">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Login</h1>
           <p className="text-sm text-gray-600 mt-2" id="login-description">
             Enter your credentials to access your todos
           </p>
