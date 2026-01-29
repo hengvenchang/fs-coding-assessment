@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateTodoSchema, type UpdateTodoFormData } from "@/lib/validations";
@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -56,6 +57,8 @@ export function EditTodoModal({
     },
   });
 
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
   // Update form values when todo changes
   useEffect(() => {
     if (todo) {
@@ -67,6 +70,15 @@ export function EditTodoModal({
       });
     }
   }, [todo, form]);
+
+  // Focus on title input when modal opens
+  useEffect(() => {
+    if (isOpen && titleInputRef.current) {
+      setTimeout(() => {
+        titleInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (data: UpdateTodoFormData) => {
     try {
@@ -91,13 +103,25 @@ export function EditTodoModal({
     }
   };
 
+  // Handle Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        handleOpenChange(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]" aria-describedby="edit-todo-description">
         <DialogHeader>
           <DialogTitle>Edit Todo</DialogTitle>
-          <DialogDescription>
-            Update the details of your todo
+          <DialogDescription id="edit-todo-description">
+            Update the details of your todo. All fields marked with * are required.
           </DialogDescription>
         </DialogHeader>
 
@@ -105,6 +129,7 @@ export function EditTodoModal({
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
+            aria-label="Edit todo form"
           >
             <FormField
               control={form.control}
@@ -117,6 +142,9 @@ export function EditTodoModal({
                       placeholder="Enter todo title"
                       disabled={isLoading}
                       {...field}
+                      ref={titleInputRef}
+                      aria-required="true"
+                      maxLength={200}
                     />
                   </FormControl>
                   <FormMessage />
@@ -136,6 +164,7 @@ export function EditTodoModal({
                       disabled={isLoading}
                       rows={4}
                       {...field}
+                      aria-label="Todo description"
                     />
                   </FormControl>
                   <FormMessage />
@@ -155,7 +184,7 @@ export function EditTodoModal({
                     disabled={isLoading}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger aria-required="true" aria-label="Select todo priority">
                         <SelectValue />
                       </SelectTrigger>
                     </FormControl>
@@ -176,10 +205,11 @@ export function EditTodoModal({
                 variant="outline"
                 onClick={onClose}
                 disabled={isLoading}
+                aria-label="Cancel and close dialog"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading} aria-label="Save changes to todo">
                 {isLoading ? "Saving..." : "Save Changes"}
               </Button>
             </div>

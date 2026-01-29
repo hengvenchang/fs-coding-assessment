@@ -27,21 +27,21 @@ export function Header() {
   };
 
   return (
-    <header className="border-b bg-white">
-      <nav className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold">
+    <header className="border-b bg-white" role="banner">
+      <nav className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center" aria-label="Main navigation">
+        <Link href="/" className="text-2xl font-bold" aria-label="TopSchool.AI - Go to homepage">
           TopSchool.AI
         </Link>
 
         <div className="flex items-center gap-4">
           {isAuthenticated && user ? (
             <>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600" aria-label="Current user">
                 Welcome, <strong>{user.username}</strong>
               </span>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" aria-label="User menu" aria-haspopup="menu">
                     Menu
                   </Button>
                 </DropdownMenuTrigger>

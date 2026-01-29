@@ -79,16 +79,16 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md p-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-gray-600 mt-2" id="register-description">
             Sign up to start managing your todos
           </p>
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" aria-describedby="register-description">
             {form.formState.errors.root && (
-              <Alert variant="destructive" className="flex gap-3">
-                <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <Alert variant="destructive" className="flex gap-3" role="alert">
+                <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" aria-hidden="true" />
                 <div className="flex-1">
                   <p className="font-semibold">Registration Failed</p>
                   <p className="text-sm">
@@ -110,10 +110,13 @@ export default function RegisterPage() {
                       disabled={isPending}
                       {...field}
                       autoComplete="username"
+                      autoFocus
+                      aria-required="true"
+                      aria-describedby="username-help"
                     />
                   </FormControl>
                   <FormMessage />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 mt-1" id="username-help">
                     3-50 characters, letters, numbers, and underscores only
                   </p>
                 </FormItem>
@@ -133,6 +136,7 @@ export default function RegisterPage() {
                       disabled={isPending}
                       {...field}
                       autoComplete="email"
+                      aria-required="true"
                     />
                   </FormControl>
                   <FormMessage />
@@ -153,10 +157,12 @@ export default function RegisterPage() {
                       disabled={isPending}
                       {...field}
                       autoComplete="new-password"
+                      aria-required="true"
+                      aria-describedby="password-help"
                     />
                   </FormControl>
                   <FormMessage />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 mt-1" id="password-help">
                     At least 8 characters
                   </p>
                 </FormItem>
@@ -176,6 +182,7 @@ export default function RegisterPage() {
                       disabled={isPending}
                       {...field}
                       autoComplete="new-password"
+                      aria-required="true"
                     />
                   </FormControl>
                   <FormMessage />
@@ -188,6 +195,7 @@ export default function RegisterPage() {
               disabled={isPending}
               className="w-full"
               size="lg"
+              aria-label="Create your account"
             >
               {isPending ? "Creating account..." : "Register"}
             </Button>
@@ -199,7 +207,7 @@ export default function RegisterPage() {
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-semibold text-blue-600 hover:text-blue-700"
+              className="font-semibold text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded"
             >
               Login here
             </Link>

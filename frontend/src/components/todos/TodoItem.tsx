@@ -32,7 +32,7 @@ export function TodoItem({
   };
 
   return (
-    <Card className={`p-4 transition-opacity ${isToggling ? "opacity-60" : ""}`}>
+    <Card className={`p-4 transition-opacity ${isToggling ? "opacity-60" : ""}`} role="article" aria-label={`Todo: ${todo.title}`}>
       <div className="flex gap-4">
         {/* Checkbox */}
         <div className="flex-shrink-0 pt-1">
@@ -41,6 +41,7 @@ export function TodoItem({
             onCheckedChange={handleToggle}
             disabled={isToggling || !isOwner}
             aria-label={`Mark "${todo.title}" as ${todo.completed ? "incomplete" : "complete"}`}
+            className="min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
           />
         </div>
 
@@ -63,27 +64,32 @@ export function TodoItem({
                 </p>
               )}
               <div className="flex gap-2 mt-2 text-xs text-gray-500">
-                <span>Created {formatDate(todo.created_at)}</span>
+                <time dateTime={todo.created_at}>
+                  <span className="sr-only">Created on </span>
+                  Created {formatDate(todo.created_at)}
+                </time>
               </div>
             </div>
 
             {/* Priority Badge */}
-            <Badge className={`flex-shrink-0 ${getPriorityColor(todo.priority)}`}>
+            <Badge className={`flex-shrink-0 ${getPriorityColor(todo.priority)}`} aria-label={`Priority: ${todo.priority}`}>
               {todo.priority}
             </Badge>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex-shrink-0 flex gap-2">
+        <div className="flex-shrink-0 flex gap-2" role="group" aria-label="Todo actions">
           {isOwner && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => onEdit(todo)}
               aria-label={`Edit "${todo.title}"`}
+              className="min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
             >
-              <Edit2 className="h-4 w-4" />
+              <Edit2 className="h-4 w-4" aria-hidden="true" />
+              <span className="sr-only">Edit</span>
             </Button>
           )}
           {isOwner && (
@@ -92,8 +98,10 @@ export function TodoItem({
               size="sm"
               onClick={() => onDelete(todo.id, todo.title)}
               aria-label={`Delete "${todo.title}"`}
+              className="min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              <span className="sr-only">Delete</span>
             </Button>
           )}
         </div>

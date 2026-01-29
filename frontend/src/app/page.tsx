@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useScreenReaderAnnounce } from "@/components/ScreenReaderAnnouncer";
 import {
   Select,
   SelectContent,
@@ -27,6 +28,7 @@ const ITEMS_PER_PAGE = 20;
 
 export default function Home() {
   const { user } = useAuth();
+  const { announce, AnnouncerComponent } = useScreenReaderAnnounce();
   const [currentPage, setCurrentPage] = useState(1); // 1-indexed for backend
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<string | undefined>();
@@ -55,6 +57,15 @@ export default function Home() {
   useEffect(() => {
     fetchTodos(currentPage, ITEMS_PER_PAGE, priorityFilter, debouncedSearch.trim() ? debouncedSearch : undefined);
   }, [currentPage, priorityFilter, debouncedSearch, fetchTodos]);
+
+  // Announce loading status to screen readers
+  useEffect(() => {
+    if (isLoading) {
+      announce("Loading todos", "polite");
+    } else {
+      announce(`Loaded ${todos.length} of ${total} todos`, "polite");
+    }
+  }, [isLoading, todos.length, total, announce]);
 
   const handleCreateTodo = async (data: CreateTodoRequest) => {
     try {
@@ -114,62 +125,81 @@ export default function Home() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen flex flex-col bg-gray-50">
+        {/* Skip to main content for keyboard users */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        
         <Header />
         
-        <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full">
+        <main id="main-content" className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full" role="main" aria-label="Todo list">
           {/* Header Section */}
           <div className="flex flex-col gap-6 mb-8">
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-gray-600">My Todos</h1>
+              <h1 className="text-3xl font-bold text-gray-900">My Todos</h1>
               <Button
                 onClick={() => setIsCreateOpen(true)}
                 size="lg"
                 className="gap-2"
+                aria-label="Create new todo"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4" aria-hidden="true" />
                 New Todo
               </Button>
             </div>
 
             {/* Filters Section */}
-            <div className="flex gap-4 flex-col sm:flex-row">
+            <section aria-label="Filter todos" className="flex gap-4 flex-col sm:flex-row">
               {/* Search */}
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <label htmlFor="search-todos" className="sr-only">
+                  Search todos by title or description
+                </label>
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" aria-hidden="true" />
                 <Input
-                  type="text"
+                  id="search-todos"
+                  type="search"
                   placeholder="Search Title, Description..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                   minLength={2}
+                  aria-describedby="search-help"
                 />
+                <span id="search-help" className="sr-only">
+                  Type at least 2 characters to search todos
+                </span>
               </div>
 
               {/* Priority Filter */}
-              <Select value={priorityFilter || "all"} onValueChange={(value) => setPriorityFilter(value === "all" ? undefined : value)}>
-                <SelectTrigger className="w-full sm:w-40">
-                  <SelectValue placeholder="All Priorities" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Priorities</SelectItem>
-                  <SelectItem value="HIGH">High</SelectItem>
-                  <SelectItem value="MEDIUM">Medium</SelectItem>
-                  <SelectItem value="LOW">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <label htmlFor="priority-filter" className="sr-only">
+                  Filter by priority
+                </label>
+                <Select value={priorityFilter || "all"} onValueChange={(value) => setPriorityFilter(value === "all" ? undefined : value)}>
+                  <SelectTrigger id="priority-filter" className="w-full sm:w-40" aria-label="Filter todos by priority">
+                    <SelectValue placeholder="All Priorities" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priorities</SelectItem>
+                    <SelectItem value="HIGH">High</SelectItem>
+                    <SelectItem value="MEDIUM">Medium</SelectItem>
+                    <SelectItem value="LOW">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </section>
           </div>
 
           {/* Todo Count */}
           {!isLoading && (
-            <div className="text-sm text-gray-600 mb-4">
+            <div className="text-sm text-gray-600 mb-4" role="status" aria-live="polite">
               Showing {todos.length} of {total} todos
             </div>
           )}
 
           {/* Todo List */}
-          <div className="space-y-3 mb-8">
+          <section aria-label="Todo items" className="space-y-3 mb-8">
             {isLoading ? (
               // Skeleton loaders
               Array.from({ length: 5 }).map((_, i) => (
@@ -202,31 +232,36 @@ export default function Home() {
                 />
               ))
             )}
-          </div>
+          </section>
 
           {/* Pagination */}
           {!isLoading && totalPages > 1 && (
-            <div className="flex justify-between items-center">
+            <nav aria-label="Todo pagination" className="flex justify-between items-center">
               <Button
                 variant="outline"
                 disabled={!hasPrevPage}
                 onClick={() => setCurrentPage((prev) => prev - 1)}
+                aria-label={`Go to previous page, page ${currentPage - 1}`}
               >
                 Previous
               </Button>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600" aria-current="page" aria-live="polite">
                 Page {currentPage} of {totalPages}
               </span>
               <Button
                 variant="outline"
                 disabled={!hasNextPage}
                 onClick={() => setCurrentPage((prev) => prev + 1)}
+                aria-label={`Go to next page, page ${currentPage + 1}`}
               >
                 Next
               </Button>
-            </div>
+            </nav>
           )}
         </main>
+        
+        {/* Screen reader announcer */}
+        <AnnouncerComponent />
       </div>
 
       {/* Modals */}

@@ -2,6 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useRef } from "react";
 import { createTodoSchema, type CreateTodoFormData } from "@/lib/validations";
 import {
   Dialog,
@@ -51,6 +52,17 @@ export function CreateTodoModal({
     },
   });
 
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus on title input when modal opens
+  useEffect(() => {
+    if (isOpen && titleInputRef.current) {
+      setTimeout(() => {
+        titleInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isOpen]);
+
   const handleSubmit = async (data: CreateTodoFormData) => {
     try {
       await onSubmit(data);
@@ -75,13 +87,25 @@ export function CreateTodoModal({
     }
   };
 
+  // Handle Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        handleOpenChange(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]" aria-describedby="create-todo-description">
         <DialogHeader>
           <DialogTitle>Create New Todo</DialogTitle>
-          <DialogDescription>
-            Add a new task to your todo list
+          <DialogDescription id="create-todo-description">
+            Add a new task to your todo list. All fields marked with * are required.
           </DialogDescription>
         </DialogHeader>
 
@@ -89,6 +113,7 @@ export function CreateTodoModal({
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
+            aria-label="Create todo form"
           >
             <FormField
               control={form.control}
@@ -101,6 +126,9 @@ export function CreateTodoModal({
                       placeholder="Enter todo title"
                       disabled={isLoading}
                       {...field}
+                      ref={titleInputRef}
+                      aria-required="true"
+                      maxLength={200}
                     />
                   </FormControl>
                   <FormMessage />
@@ -120,6 +148,7 @@ export function CreateTodoModal({
                       disabled={isLoading}
                       rows={4}
                       {...field}
+                      aria-label="Todo description"
                     />
                   </FormControl>
                   <FormMessage />
@@ -139,7 +168,7 @@ export function CreateTodoModal({
                     disabled={isLoading}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger aria-required="true" aria-label="Select todo priority">
                         <SelectValue />
                       </SelectTrigger>
                     </FormControl>
@@ -160,10 +189,11 @@ export function CreateTodoModal({
                 variant="outline"
                 onClick={onClose}
                 disabled={isLoading}
+                aria-label="Cancel and close dialog"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading} aria-label="Create todo">
                 {isLoading ? "Creating..." : "Create Todo"}
               </Button>
             </div>
