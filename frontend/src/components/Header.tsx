@@ -29,8 +29,8 @@ export function Header() {
   return (
     <header className="border-b bg-white">
       <nav className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-blue-600">
-          Todos
+        <Link href="/" className="text-2xl font-bold">
+          TopSchool.AI
         </Link>
 
         <div className="flex items-center gap-4">

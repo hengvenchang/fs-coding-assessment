@@ -10,11 +10,11 @@ export function useTodos() {
   const [total, setTotal] = useState(0);
 
   const fetchTodos = useCallback(
-    async (skip: number, limit: number, priority?: string, search?: string) => {
+    async (page: number, page_size: number, priority?: string, search?: string) => {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await apiClient.getTodos(skip, limit, priority, search);
+        const response = await apiClient.getTodos(page, page_size, priority, search);
         setTodos(response.items);
         setTotal(response.total);
       } catch (err) {

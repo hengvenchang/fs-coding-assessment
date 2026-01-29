@@ -100,14 +100,14 @@ class ApiClient {
 
   // Todo endpoints
   async getTodos(
-    skip: number = 0,
-    limit: number = 20,
+    page: number = 1,
+    page_size: number = 20,
     priority?: string,
     search?: string
   ): Promise<PaginatedResponse<Todo>> {
     const params = new URLSearchParams();
-    params.append("skip", skip.toString());
-    params.append("limit", limit.toString());
+    params.append("page", page.toString());
+    params.append("page_size", page_size.toString());
     if (priority) params.append("priority", priority);
     if (search) params.append("search", search);
 

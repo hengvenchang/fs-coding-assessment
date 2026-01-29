@@ -14,6 +14,7 @@ interface TodoItemProps {
   onEdit: (todo: Todo) => void;
   onDelete: (id: string, title: string) => void;
   isToggling?: boolean;
+  currentUserId?: string;
 }
 
 export function TodoItem({
@@ -22,7 +23,10 @@ export function TodoItem({
   onEdit,
   onDelete,
   isToggling = false,
+  currentUserId,
 }: TodoItemProps) {
+  const isOwner = currentUserId === todo.user_id;
+  
   const handleToggle = async () => {
     await onToggle(todo.id, todo.completed);
   };
@@ -35,7 +39,7 @@ export function TodoItem({
           <Checkbox
             checked={todo.completed}
             onCheckedChange={handleToggle}
-            disabled={isToggling}
+            disabled={isToggling || !isOwner}
             aria-label={`Mark "${todo.title}" as ${todo.completed ? "incomplete" : "complete"}`}
           />
         </div>
@@ -72,22 +76,26 @@ export function TodoItem({
 
         {/* Actions */}
         <div className="flex-shrink-0 flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onEdit(todo)}
-            aria-label={`Edit "${todo.title}"`}
-          >
-            <Edit2 className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onDelete(todo.id, todo.title)}
-            aria-label={`Delete "${todo.title}"`}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {isOwner && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(todo)}
+              aria-label={`Edit "${todo.title}"`}
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button>
+          )}
+          {isOwner && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onDelete(todo.id, todo.title)}
+              aria-label={`Delete "${todo.title}"`}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </Card>

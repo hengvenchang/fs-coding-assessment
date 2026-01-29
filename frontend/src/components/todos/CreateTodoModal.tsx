@@ -63,6 +63,13 @@ export function CreateTodoModal({
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
+      const isDirty = form.formState.isDirty;
+      if (isDirty) {
+        const confirmed = window.confirm(
+          "You have unsaved changes. Are you sure you want to close this form?"
+        );
+        if (!confirmed) return;
+      }
       form.reset();
       onClose();
     }

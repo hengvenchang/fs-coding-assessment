@@ -6,6 +6,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { CreateTodoRequest, UpdateTodoRequest, Todo } from "@/lib/types";
 import { Header } from "@/components/Header";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useAuth } from "@/contexts/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,7 +26,8 @@ import { Plus, Search } from "lucide-react";
 const ITEMS_PER_PAGE = 20;
 
 export default function Home() {
-  const [currentPage, setCurrentPage] = useState(0);
+  const { user } = useAuth();
+  const [currentPage, setCurrentPage] = useState(1); // 1-indexed for backend
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<string | undefined>();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -44,18 +46,22 @@ export default function Home() {
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { todos, isLoading, total, fetchTodos, createTodo, updateTodo, deleteTodo, toggleComplete } = useTodos();
 
-  // Fetch todos when filters change
+  // Fetch todos when filters change - reset to page 1
   useEffect(() => {
-    setCurrentPage(0);
-    fetchTodos(0, ITEMS_PER_PAGE, priorityFilter, debouncedSearch.trim() ? debouncedSearch : undefined);
-  }, [debouncedSearch, priorityFilter, fetchTodos]);
+    setCurrentPage(1);
+  }, [debouncedSearch, priorityFilter]);
+
+  // Fetch todos when page or filters change
+  useEffect(() => {
+    fetchTodos(currentPage, ITEMS_PER_PAGE, priorityFilter, debouncedSearch.trim() ? debouncedSearch : undefined);
+  }, [currentPage, priorityFilter, debouncedSearch, fetchTodos]);
 
   const handleCreateTodo = async (data: CreateTodoRequest) => {
     try {
       setIsCreating(true);
       await createTodo(data);
       // Refetch to get updated count
-      fetchTodos(0, ITEMS_PER_PAGE, priorityFilter, debouncedSearch.trim() ? debouncedSearch : undefined);
+      fetchTodos(1, ITEMS_PER_PAGE, priorityFilter, debouncedSearch.trim() ? debouncedSearch : undefined);
     } finally {
       setIsCreating(false);
     }
@@ -100,8 +106,8 @@ export default function Home() {
   };
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
-  const hasNextPage = currentPage < totalPages - 1;
-  const hasPrevPage = currentPage > 0;
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
 
   return (
     <ProtectedRoute>
@@ -130,7 +136,7 @@ export default function Home() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="Search todos... (min 2 chars)"
+                  placeholder="Search todos... (title, description)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -190,6 +196,7 @@ export default function Home() {
                   onEdit={handleEditClick}
                   onDelete={handleDeleteClick}
                   isToggling={isTogglingId === todo.id}
+                  currentUserId={user?.id}
                 />
               ))
             )}
@@ -206,7 +213,7 @@ export default function Home() {
                 Previous
               </Button>
               <span className="text-sm text-gray-600">
-                Page {currentPage + 1} of {totalPages}
+                Page {currentPage} of {totalPages}
               </span>
               <Button
                 variant="outline"
