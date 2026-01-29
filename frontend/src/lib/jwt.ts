@@ -5,7 +5,8 @@
 interface JWTPayload {
   sub: string;
   exp: number;
-  [key: string]: any;
+  username?: string;
+  [key: string]: unknown;
 }
 
 /**
@@ -25,7 +26,7 @@ export function decodeJWT(token: string): JWTPayload | null {
     const padded = payload + "==".substring(0, (4 - (payload.length % 4)) % 4);
     const decoded = atob(padded);
     return JSON.parse(decoded) as JWTPayload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

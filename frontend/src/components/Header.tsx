@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { toast } from "sonner";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 
 export function Header() {
   const { user, isAuthenticated, logout } = useAuth();

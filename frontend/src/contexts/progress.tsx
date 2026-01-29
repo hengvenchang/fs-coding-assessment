@@ -12,23 +12,13 @@ const ProgressContext = createContext<ProgressContextType | undefined>(undefined
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingCount, setLoadingCount] = useState(0);
 
   const startLoading = useCallback(() => {
-    setLoadingCount((prev) => prev + 1);
     setIsLoading(true);
   }, []);
 
   const stopLoading = useCallback(() => {
-    setLoadingCount((prev) => Math.max(0, prev - 1));
-    // Only set isLoading to false when all operations are complete
-    setLoadingCount((prev) => {
-      if (prev <= 1) {
-        setIsLoading(false);
-        return 0;
-      }
-      return prev - 1;
-    });
+    setIsLoading(false);
   }, []);
 
   return (

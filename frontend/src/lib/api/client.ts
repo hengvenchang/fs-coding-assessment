@@ -62,7 +62,7 @@ export class HttpClient {
     options: RequestInit = {}
   ): Promise<T> {
     let lastError: Error | null = null;
-    let lastStatus: number | null = null;
+    const lastStatus: number | null = null;
 
     for (let attempt = 1; attempt <= this.retryConfig.maxRetries; attempt++) {
       try {
@@ -141,7 +141,7 @@ export class HttpClient {
     });
 
     if (!response.ok) {
-      const error: ApiError = await response.json().catch(() => ({
+      const error: ApiError = await response.json().catch((): ApiError => ({
         detail: `HTTP Error ${response.status}`,
       }));
       
@@ -150,8 +150,8 @@ export class HttpClient {
           ? error.detail
           : JSON.stringify(error.detail);
       
-      const err = new Error(errorMessage);
-      (err as any).status = response.status;
+      const err = new Error(errorMessage) as Error & { status?: number };
+      err.status = response.status;
       throw err;
     }
 

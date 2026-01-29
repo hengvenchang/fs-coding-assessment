@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { createTodoSchema, type CreateTodoFormData } from "@/lib/validations";
 import {
   Dialog,
@@ -73,7 +73,7 @@ export function CreateTodoModal({
     }
   };
 
-  const handleOpenChange = (open: boolean) => {
+  const handleOpenChange = useCallback((open: boolean) => {
     if (!open) {
       const isDirty = form.formState.isDirty;
       if (isDirty) {
@@ -85,7 +85,7 @@ export function CreateTodoModal({
       form.reset();
       onClose();
     }
-  };
+  }, [form, onClose]);
 
   // Handle Escape key
   useEffect(() => {
@@ -97,7 +97,7 @@ export function CreateTodoModal({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
+  }, [isOpen, handleOpenChange]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>

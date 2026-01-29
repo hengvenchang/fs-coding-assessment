@@ -11,7 +11,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
   isAuthenticated: boolean;
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const register = useCallback(
-    async (username: string, password: string) => {
+    async (username: string, email: string, password: string) => {
       // Store previous state for rollback
       const previousUser = user;
       const previousToken = token;
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         setIsLoading(true);
         setError(null);
-        const response: AuthResponse = await authService.register({ username, password });
+        const response: AuthResponse = await authService.register({ username, email, password });
         
         const newToken = response.access_token;
         setToken(newToken);

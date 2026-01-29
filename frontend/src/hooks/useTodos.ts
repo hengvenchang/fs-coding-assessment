@@ -11,17 +11,6 @@ export function useTodos() {
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
 
-  /**
-   * Show retry toast notification
-   */
-  const showRetryToast = (attempt: number, operation: string): void => {
-    if (attempt > 1) {
-      toast.loading(`Retrying ${operation}... (Attempt ${attempt}/3)`, {
-        id: `retry-${operation}`,
-      });
-    }
-  };
-
   const fetchTodos = useCallback(
     async (page: number, page_size: number, priority?: string, search?: string) => {
       try {

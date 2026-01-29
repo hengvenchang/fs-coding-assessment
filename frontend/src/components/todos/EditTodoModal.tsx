@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateTodoSchema, type UpdateTodoFormData } from "@/lib/validations";
@@ -15,7 +15,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -89,7 +88,7 @@ export function EditTodoModal({
     }
   };
 
-  const handleOpenChange = (open: boolean) => {
+  const handleOpenChange = useCallback((open: boolean) => {
     if (!open) {
       const isDirty = form.formState.isDirty;
       if (isDirty) {
@@ -101,7 +100,7 @@ export function EditTodoModal({
       form.reset();
       onClose();
     }
-  };
+  }, [form, onClose]);
 
   // Handle Escape key
   useEffect(() => {
@@ -113,7 +112,7 @@ export function EditTodoModal({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
+  }, [isOpen, handleOpenChange]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
