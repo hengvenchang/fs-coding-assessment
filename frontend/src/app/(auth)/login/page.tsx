@@ -40,11 +40,15 @@ export default function LoginPage() {
       setIsPending(true);
       await login(data.username, data.password);
       toast.success("Login successful!");
-      router.push("/todos");
+      // Small delay to ensure state updates before redirect
+      setTimeout(() => {
+        router.push("/todos");
+      }, 100);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Login failed. Please try again.";
       toast.error(message);
+      console.error("Login error:", error);
     } finally {
       setIsPending(false);
     }

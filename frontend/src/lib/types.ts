@@ -4,10 +4,15 @@ export interface User {
   username: string;
 }
 
-export interface AuthResponse {
+export interface AuthToken {
   access_token: string;
   token_type: string;
-  user: User;
+  expires_in: number;
+}
+
+// For backward compatibility with our old interface
+export interface AuthResponse extends AuthToken {
+  user?: User;
 }
 
 export interface LoginRequest {

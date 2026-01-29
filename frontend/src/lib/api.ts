@@ -1,4 +1,4 @@
-import { ApiError, AuthResponse, CreateTodoRequest, LoginRequest, PaginatedResponse, RegisterRequest, Todo, UpdateTodoRequest } from "./types";
+import { ApiError, AuthResponse, AuthToken, CreateTodoRequest, LoginRequest, PaginatedResponse, RegisterRequest, Todo, UpdateTodoRequest, User } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -71,7 +71,7 @@ class ApiClient {
 
   // Auth endpoints
   async register(data: RegisterRequest): Promise<AuthResponse> {
-    const response = await this.request<AuthResponse>("/auth/register", {
+    const response = await this.request<AuthToken>("/auth/register", {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -80,12 +80,18 @@ class ApiClient {
   }
 
   async login(data: LoginRequest): Promise<AuthResponse> {
-    const response = await this.request<AuthResponse>("/auth/login", {
+    const response = await this.request<AuthToken>("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
     });
     this.setToken(response.access_token);
     return response;
+  }
+
+  async getCurrentUser(): Promise<User> {
+    return this.request<User>("/users/me", {
+      method: "GET",
+    });
   }
 
   async logout(): Promise<void> {
