@@ -134,7 +134,7 @@ class ApiClient {
 
   async updateTodo(id: string, data: UpdateTodoRequest): Promise<Todo> {
     return this.request<Todo>(`/todos/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       body: JSON.stringify(data),
     });
   }
