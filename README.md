@@ -63,13 +63,6 @@ npm run dev
 cd backend
 uv run pytest
 ```
-
-**Frontend:**
-```bash
-cd frontend
-npm test
-```
-
 ---
 
 ## 📋 Project Requirements
