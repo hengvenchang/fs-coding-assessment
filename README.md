@@ -1,56 +1,87 @@
-# Full Stack Engineering Assessment – Production TODO Application
+# Full Stack TODO Application
 
-Welcome to the Full Stack Engineering Assessment! This challenge evaluates your ability to build a **production-ready TODO application** with modern architecture patterns, authentication, database integration, and comprehensive testing.
-
----
-
-## 🎯 Objective
-
-Build a complete, production-grade TODO application with:
-
-- **Backend**: RESTful API using FastAPI with PostgreSQL/SQLite database, JWT authentication, and comprehensive testing
-- **Frontend**: Next.js application with state management, authentication flow, optimistic updates, and error handling
+A TODO application with FastAPI backend and Next.js frontend, featuring JWT authentication, PostgreSQL database, and comprehensive testing.
 
 ---
 
-## 📋 Detailed Requirements
+## 🚀 Quick Setup
 
-Please check:
+### Prerequisites
 
-- [`/backend/README.md`](./backend/README.md) for detailed Backend requirements
-- [`/frontend/README.md`](./frontend/README.md) for detailed Frontend requirements
+- **Python 3.12+** and **uv** (backend)
+- **Node.js 22+** (frontend)
+- **Docker** (for PostgreSQL)
+
+### Backend Setup
+
+```bash
+cd backend
+
+# Install dependencies
+uv sync
+
+# Configure environment
+cp .env.example .env
+
+# Start PostgreSQL
+docker compose up -d db
+
+# Run migrations
+uv run alembic upgrade head
+
+# Start API server
+uv run uvicorn app.main:app --reload
+```
+
+**API:** http://localhost:8000  
+**Database:** postgres://postgres:5up3r53cr3t@localhost:5432/todo_db
+
+### Frontend Setup
+
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env.local
+# Set: NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+
+# Start dev server
+npm run dev
+```
+
+**App:** http://localhost:3000
 
 ---
 
-## 🚀 Submission Requirements
+## 🧪 Running Tests
 
-### Must Include:
+**Backend:**
+```bash
+cd backend
+uv run pytest
+```
 
-1. **GitHub Repository** with:
-   - Clear README with setup instructions
-   - `.env.example` files for both frontend and backend
-2. **Documentation**:
-   - API documentation
-   - Architecture decisions and trade-offs
-3. **Tests**:
-   - Test suites
-   - Instructions to run tests
-
-4. **Working Application**:
-   - Both services run independently
-   - Successful frontend-backend integration
-   - All features functional
-
-### Evaluation Criteria:
-
-- **Code Quality** (30%): Clean, maintainable, well-structured code
-- **Functionality** (25%): All required features working correctly
-- **Architecture** (20%): Proper separation of concerns, scalable design
-- **Testing** (15%): Comprehensive test coverage
-- **Security** (10%): Authentication, validation, secure practices
+**Frontend:**
+```bash
+cd frontend
+npm test
+```
 
 ---
 
-Good luck! We're excited to see your solution. 🚀
+## 📋 Project Requirements
 
-**Questions?** Contact us via invitation email and we'll respond.
+- **Backend**: [`backend/README.md`](./backend/README.md) - FastAPI, PostgreSQL, JWT auth
+- **Frontend**: [`frontend/README.md`](./frontend/README.md) - Next.js, state management, optimistic UI
+
+---
+
+## 📦 Tech Stack
+
+**Backend:** FastAPI · SQLModel · PostgreSQL · Alembic · Pytest  
+**Frontend:** Next.js 15 · React · TypeScript · Tailwind CSS · shadcn/ui
+
+---
