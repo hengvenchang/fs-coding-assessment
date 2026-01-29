@@ -18,3 +18,8 @@ uv run uvicorn app.main:app --reload
 
 API: http://localhost:8000
 DB: postgres://postgres:5up3r53cr3t@localhost:5432/todo_db
+
+### Tests
+```bash
+uv run pytest
+```
