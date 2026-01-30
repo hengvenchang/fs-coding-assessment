@@ -33,6 +33,8 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
 export class HttpClient {
   private baseUrl: string;
   private retryConfig: RetryConfig;
+  private isRefreshing: boolean = false;
+  private refreshPromise: Promise<boolean> | null = null;
 
   constructor(baseUrl: string = API_URL || "", retryConfig?: Partial<RetryConfig>) {
     this.baseUrl = baseUrl;
@@ -117,6 +119,7 @@ export class HttpClient {
   /**
    * Make the actual HTTP request
    * Cookies are automatically included via credentials: "include"
+   * Automatically refreshes token on 401 errors
    */
   private async makeRequest<T>(
     endpoint: string,
@@ -137,6 +140,52 @@ export class HttpClient {
       headers,
       credentials: "include", // Automatically send/receive cookies
     });
+
+    // Handle 401 Unauthorized - attempt to refresh token
+    if (response.status === 401 && endpoint !== "/auth/refresh" && endpoint !== "/auth/login") {
+      const refreshed = await this.refreshAccessToken();
+      
+      if (refreshed) {
+        // Retry the original request with the new access token
+        const retryResponse = await fetch(url, {
+          ...options,
+          headers,
+          credentials: "include",
+        });
+        
+        if (!retryResponse.ok) {
+          const error: ApiError = await retryResponse.json().catch((): ApiError => ({
+            detail: `HTTP Error ${retryResponse.status}`,
+          }));
+          
+          const errorMessage =
+            typeof error.detail === "string"
+              ? error.detail
+              : JSON.stringify(error.detail);
+          
+          const err = new Error(errorMessage) as Error & { status?: number };
+          err.status = retryResponse.status;
+          throw err;
+        }
+        
+        // Handle successful retry response
+        if (retryResponse.status === 204 || retryResponse.headers.get("content-length") === "0") {
+          return undefined as T;
+        }
+        
+        const contentType = retryResponse.headers.get("content-type");
+        if (contentType?.includes("application/json")) {
+          return retryResponse.json() as Promise<T>;
+        }
+        
+        return undefined as T;
+      } else {
+        // Refresh failed, throw 401 error
+        const err = new Error("Authentication required") as Error & { status?: number };
+        err.status = 401;
+        throw err;
+      }
+    }
 
     if (!response.ok) {
       const error: ApiError = await response.json().catch((): ApiError => ({
@@ -166,6 +215,55 @@ export class HttpClient {
 
     // Return undefined for non-JSON responses
     return undefined as T;
+  }
+
+  /**
+   * Refresh the access token using the refresh token cookie
+   * Uses a promise to prevent multiple concurrent refresh attempts
+   */
+  private async refreshAccessToken(): Promise<boolean> {
+    // If already refreshing, wait for that to complete
+    if (this.isRefreshing && this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    // Start refreshing
+    this.isRefreshing = true;
+    this.refreshPromise = this.performRefresh();
+
+    try {
+      const result = await this.refreshPromise;
+      return result;
+    } finally {
+      this.isRefreshing = false;
+      this.refreshPromise = null;
+    }
+  }
+
+  /**
+   * Perform the actual token refresh
+   */
+  private async performRefresh(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/refresh`, {
+        method: "POST",
+        credentials: "include", // Send refresh token cookie
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        // New access token is set in cookie automatically
+        return true;
+      }
+
+      // Refresh failed
+      return false;
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+      return false;
+    }
   }
 
   /**

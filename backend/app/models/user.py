@@ -10,6 +10,7 @@ from app.schemas.mixin import TimeStampMixin
 
 if TYPE_CHECKING:
     from app.models.todo import Todo
+    from app.models.refresh_token import RefreshToken
 
 
 class UserStatus(str, Enum):
@@ -39,3 +40,4 @@ class User(UserBase, TimeStampMixin, table=True):
     
     # Relationship
     todos: list["Todo"] = Relationship(back_populates="user")
+    refresh_tokens: list["RefreshToken"] = Relationship(back_populates="user")
