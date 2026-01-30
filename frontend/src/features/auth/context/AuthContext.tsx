@@ -1,13 +1,11 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { User, AuthResponse } from "../types/auth.types";
+import { User } from "../types/auth.types";
 import { authService } from "../services/auth.service";
-import { getUserIdFromToken, getUsernameFromToken, isTokenExpired } from "../utils/jwt";
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   error: string | null;
   login: (username: string, password: string) => Promise<void>;
@@ -21,63 +19,43 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize from localStorage
+  // Check authentication on mount by fetching current user
+  // With httpOnly cookies, we can't check client-side
   useEffect(() => {
-    const storedToken = localStorage.getItem("auth_token");
-    if (storedToken) {
+    const checkAuth = async () => {
       try {
-        const parsedToken = JSON.parse(storedToken);
-        
-        // Check if token is expired
-        if (!isTokenExpired(parsedToken)) {
-          const userId = getUserIdFromToken(parsedToken);
-          const username = getUsernameFromToken(parsedToken);
-          if (userId && username) {
-            setToken(parsedToken);
-            // Create user object from token with username
-            setUser({ id: userId, username });
-          }
-        } else {
-          // Token is expired, clear it
-          localStorage.removeItem("auth_token");
-        }
+        const currentUser = await authService.getCurrentUser();
+        setUser(currentUser);
       } catch {
-        localStorage.removeItem("auth_token");
+        // Not authenticated or session expired
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
   const clearError = useCallback(() => setError(null), []);
 
   const login = useCallback(
     async (username: string, password: string) => {
-      // Store previous state for rollback
-      const previousUser = user;
-      const previousToken = token;
-
       try {
         setIsLoading(true);
         setError(null);
-        const response: AuthResponse = await authService.login({ username, password });
         
-        const newToken = response.access_token;
-        setToken(newToken);
+        // Login sets httpOnly cookie on backend
+        await authService.login({ username, password });
         
-        // Extract user info from token
-        const userId = getUserIdFromToken(newToken);
-        const tokenUsername = getUsernameFromToken(newToken);
-        if (userId && tokenUsername) {
-          setUser({ id: userId, username: tokenUsername });
-        }
+        // Fetch user data now that we're authenticated
+        const currentUser = await authService.getCurrentUser();
+        setUser(currentUser);
       } catch (err) {
-        // Rollback on error
-        setUser(previousUser);
-        setToken(previousToken);
+        console.error("Login error details:", err);
         const message = err instanceof Error ? err.message : "Login failed";
         setError(message);
         throw err;
@@ -85,33 +63,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
       }
     },
-    [user, token]
+    []
   );
 
   const register = useCallback(
     async (username: string, email: string, password: string) => {
-      // Store previous state for rollback
-      const previousUser = user;
-      const previousToken = token;
-
       try {
         setIsLoading(true);
         setError(null);
-        const response: AuthResponse = await authService.register({ username, email, password });
         
-        const newToken = response.access_token;
-        setToken(newToken);
-        
-        // Extract user info from token
-        const userId = getUserIdFromToken(newToken);
-        const tokenUsername = getUsernameFromToken(newToken);
-        if (userId && tokenUsername) {
-          setUser({ id: userId, username: tokenUsername });
-        }
+        // Register sets httpOnly cookie and returns user data
+        const newUser = await authService.register({ username, email, password });
+        setUser(newUser);
       } catch (err) {
-        // Rollback on error
-        setUser(previousUser);
-        setToken(previousToken);
         const message = err instanceof Error ? err.message : "Registration failed";
         setError(message);
         throw err;
@@ -119,20 +83,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
       }
     },
-    [user, token]
+    []
   );
 
   const logout = useCallback(async () => {
     try {
       setIsLoading(true);
+      // Server clears the httpOnly cookie
       await authService.logout();
       setUser(null);
-      setToken(null);
       setError(null);
     } catch (err) {
-      // Still clear auth state even if logout fails
+      // Still clear user state even if server call fails
       setUser(null);
-      setToken(null);
       const message = err instanceof Error ? err.message : "Logout failed";
       setError(message);
     } finally {
@@ -142,14 +105,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value: AuthContextType = {
     user,
-    token,
     isLoading,
     error,
     login,
     register,
     logout,
     clearError,
-    isAuthenticated: !!user && !!token,
+    isAuthenticated: !!user,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

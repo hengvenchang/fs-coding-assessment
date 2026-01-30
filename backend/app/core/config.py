@@ -28,6 +28,27 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
 
+class CookieSettings(BaseModel):
+    """Cookie configuration for httpOnly authentication."""
+    name: str = "access_token"
+    httponly: bool = True
+    secure: bool = False  # Set to True in production (HTTPS)
+    samesite: str = "lax"
+    path: str = "/"
+    domain: str | None = None
+    
+    def get_config(self, max_age: int) -> dict:
+        """Get cookie configuration dict for FastAPI response.set_cookie()."""
+        return {
+            "httponly": self.httponly,
+            "secure": self.secure,
+            "samesite": self.samesite,
+            "max_age": max_age,
+            "path": self.path,
+            "domain": self.domain,
+        }
+
+
 @lru_cache
 def get_settings() -> Settings:
     """Get cached settings instance.
@@ -36,3 +57,13 @@ def get_settings() -> Settings:
         Settings instance
     """
     return Settings()
+
+
+@lru_cache
+def get_cookie_settings() -> CookieSettings:
+    """Get cached cookie settings instance.
+    
+    Returns:
+        CookieSettings instance
+    """
+    return CookieSettings()

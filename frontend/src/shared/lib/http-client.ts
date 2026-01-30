@@ -1,11 +1,20 @@
 /**
- * Base HTTP client for API requests
- * Handles authentication, headers, error responses, and retry logic
+ * Base HTTP client for API requests with httpOnly cookie authentication
+ * 
+ * Security improvements:
+ * 1. No token storage in JavaScript (httpOnly cookies handled by browser)
+ * 2. Automatic cookie transmission via credentials: "include"
+ * 3. CSRF protection via SameSite cookie attribute
+ * 4. Reduced XSS attack surface (no localStorage/sessionStorage)
  */
 
 import { ApiError } from "../types/common.types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+
+if (!API_URL) {
+  throw new Error("NEXT_PUBLIC_API_URL must be defined in environment variables");
+}
 
 interface RetryConfig {
   maxRetries: number;
@@ -46,23 +55,14 @@ export class HttpClient {
   }
 
   /**
-   * Check if error is retryable (not a client error)
-   */
-  private isRetryable(status: number): boolean {
-    // Don't retry on client errors
-    const nonRetryableStatuses = [400, 401, 403, 404, 422]; // 422 is validation error
-    return !nonRetryableStatuses.includes(status);
-  }
-
-  /**
    * Make an HTTP request with retry logic
+   * Cookies are automatically sent via credentials: "include"
    */
   async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     let lastError: Error | null = null;
-    const lastStatus: number | null = null;
 
     for (let attempt = 1; attempt <= this.retryConfig.maxRetries; attempt++) {
       try {
@@ -76,8 +76,9 @@ export class HttpClient {
         }
 
         // Check if error is retryable
-        // Parse status from error message or fetch response
-        const isRetryableError = this.isRetryableError(lastError, lastStatus);
+        const status = (lastError as Error & { status?: number }).status;
+        const isRetryableError = this.isRetryableError(lastError, status || null);
+        
         if (!isRetryableError) {
           throw lastError;
         }
@@ -115,13 +116,13 @@ export class HttpClient {
 
   /**
    * Make the actual HTTP request
+   * Cookies are automatically included via credentials: "include"
    */
   private async makeRequest<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    const token = this.getToken();
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -130,14 +131,11 @@ export class HttpClient {
         : (options.headers as Record<string, string>) || {}),
     };
 
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
+    // No manual Authorization header needed - cookies are automatic!
     const response = await fetch(url, {
       ...options,
       headers,
-      credentials: "include",
+      credentials: "include", // Automatically send/receive cookies
     });
 
     if (!response.ok) {
@@ -171,33 +169,16 @@ export class HttpClient {
   }
 
   /**
-   * Get authentication token from storage
+   * Clear all auth state (for logout)
+   * Note: httpOnly cookies are cleared by the server logout endpoint
    */
-  getToken(): string | null {
-    if (typeof window === "undefined") return null;
-    try {
-      const stored = localStorage.getItem("auth_token");
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Save authentication token to storage
-   */
-  setToken(token: string): void {
+  clearAuth(): void {
+    // With httpOnly cookies, we don't store tokens client-side
+    // The server's /auth/logout endpoint clears the cookie
+    // This method is kept for potential client-side cleanup
     if (typeof window !== "undefined") {
-      localStorage.setItem("auth_token", JSON.stringify(token));
-    }
-  }
-
-  /**
-   * Remove authentication token from storage
-   */
-  clearToken(): void {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("auth_token");
+      // Clear any non-httpOnly auth data if needed
+      localStorage.removeItem("user_data");
     }
   }
 }

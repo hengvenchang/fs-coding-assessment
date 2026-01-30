@@ -61,13 +61,17 @@ class UserService:
                 detail=f"{user.status.value.capitalize()} user",
             )
 
+        return await self.generate_token_for_user(user.id, user.username)
+
+    async def generate_token_for_user(self, user_id: uuid.UUID, username: str) -> AuthToken:
+        """Generate authentication token for a user."""
         access_token_expires = timedelta(
             minutes=self.settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
 
         return AuthToken(
             access_token=security.create_access_token(
-                subject=user.id, expires_delta=access_token_expires, username=user.username
+                subject=user_id, expires_delta=access_token_expires, username=username
             ),
             expires_in=self.settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
             token_type="bearer",

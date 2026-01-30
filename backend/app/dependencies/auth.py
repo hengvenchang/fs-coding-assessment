@@ -2,7 +2,7 @@ import uuid
 from typing import Annotated
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Cookie, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
@@ -13,12 +13,34 @@ from app.models.user import User, UserStatus
 from app.schemas.auth import TokenPayload
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/oauth2")
+# OAuth2 scheme for Swagger UI /docs (reads from Authorization header)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/oauth2", auto_error=False)
 
 settings = get_settings()
 
 
-TokenDep = Annotated[str, Depends(oauth2_scheme)]
+def get_token_from_cookie_or_header(
+    access_token: str | None = Cookie(default=None),
+    authorization: str | None = Depends(oauth2_scheme),
+) -> str:
+    """
+    Extract token from httpOnly cookie (priority) or Authorization header (fallback).
+    Supports both cookie-based auth and header-based auth for Swagger UI.
+    """
+    if access_token:
+        return access_token
+    
+    if authorization:
+        return authorization
+    
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Not authenticated",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+TokenDep = Annotated[str, Depends(get_token_from_cookie_or_header)]
 
 
 async def get_current_user(token: TokenDep, user_service: UserServiceDep) -> User:
