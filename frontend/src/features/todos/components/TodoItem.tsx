@@ -6,7 +6,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Badge } from "@/shared/components/ui/badge";
 import { getPriorityColor, formatDate } from "@/shared/utils";
-import { Trash2, Edit2 } from "lucide-react";
+import { Trash2, Edit2, Calendar } from "lucide-react";
 
 interface TodoItemProps {
   todo: Todo;
@@ -30,6 +30,9 @@ export function TodoItem({
   const handleToggle = async () => {
     await onToggle(todo.id, todo.completed);
   };
+
+  // Check if todo is overdue
+  const isOverdue = todo.due_date && !todo.completed && new Date(todo.due_date) < new Date();
 
   return (
     <Card className={`p-3 md:p-4 transition-opacity ${isToggling ? "opacity-60" : ""}`} role="article" aria-label={`Todo: ${todo.title}`}>
@@ -69,11 +72,24 @@ export function TodoItem({
                   {todo.description}
                 </p>
               )}
-              <div className="flex gap-2 mt-2 text-xs text-gray-500">
+              <div className="flex flex-wrap gap-2 mt-2 text-xs text-gray-500">
                 <time dateTime={todo.created_at}>
                   <span className="sr-only">Created on </span>
                   Created {formatDate(todo.created_at)}
                 </time>
+                {todo.due_date && (
+                  <>
+                    <span>•</span>
+                    <div className={`flex items-center gap-1 ${isOverdue ? "text-red-600 font-semibold" : ""}`}>
+                      <Calendar className="h-3 w-3" aria-hidden="true" />
+                      <time dateTime={todo.due_date}>
+                        <span className="sr-only">Due on </span>
+                        Due {formatDate(todo.due_date)}
+                        {isOverdue && <span className="ml-1">(Overdue)</span>}
+                      </time>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 

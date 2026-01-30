@@ -8,6 +8,7 @@ export interface Todo {
   description?: string;
   priority: "HIGH" | "MEDIUM" | "LOW";
   completed: boolean;
+  due_date?: string;
   user_id: string;
   created_at: string;
   updated_at: string;
@@ -17,6 +18,7 @@ export interface CreateTodoRequest {
   title: string;
   description?: string;
   priority: "HIGH" | "MEDIUM" | "LOW";
+  due_date?: string;
 }
 
 export interface UpdateTodoRequest {
@@ -24,4 +26,5 @@ export interface UpdateTodoRequest {
   description?: string;
   priority?: "HIGH" | "MEDIUM" | "LOW";
   completed?: boolean;
+  due_date?: string;
 }

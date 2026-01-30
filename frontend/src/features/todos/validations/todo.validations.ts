@@ -14,6 +14,7 @@ export const createTodoSchema = z.object({
     .max(1000, "Description must be at most 1000 characters")
     .optional(),
   priority: z.enum(["HIGH", "MEDIUM", "LOW"]),
+  due_date: z.string().optional(),
 });
 
 export const updateTodoSchema = z.object({
@@ -27,6 +28,7 @@ export const updateTodoSchema = z.object({
     .optional(),
   priority: z.enum(["HIGH", "MEDIUM", "LOW"]),
   completed: z.boolean().optional(),
+  due_date: z.string().optional(),
 });
 
 export type CreateTodoFormData = z.infer<typeof createTodoSchema>;

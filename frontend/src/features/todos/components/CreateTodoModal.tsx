@@ -49,6 +49,7 @@ export function CreateTodoModal({
       title: "",
       description: undefined,
       priority: "MEDIUM",
+      due_date: undefined,
     },
   });
 
@@ -178,6 +179,26 @@ export function CreateTodoModal({
                       <SelectItem value="HIGH">High</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="due_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Due Date</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      disabled={isLoading}
+                      {...field}
+                      value={field.value || ""}
+                      aria-label="Todo due date"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

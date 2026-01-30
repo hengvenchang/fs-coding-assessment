@@ -53,6 +53,7 @@ export function EditTodoModal({
       description: undefined,
       priority: "MEDIUM",
       completed: false,
+      due_date: undefined,
     },
   });
 
@@ -66,6 +67,7 @@ export function EditTodoModal({
         description: todo.description,
         priority: todo.priority,
         completed: todo.completed,
+        due_date: todo.due_date ? todo.due_date.split('T')[0] : undefined,
       });
     }
   }, [todo, form]);
@@ -193,6 +195,26 @@ export function EditTodoModal({
                       <SelectItem value="HIGH">High</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="due_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Due Date</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      disabled={isLoading}
+                      {...field}
+                      value={field.value || ""}
+                      aria-label="Todo due date"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
