@@ -1,27 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTodos } from "@/hooks/useTodos";
-import { useDebounce } from "@/hooks/useDebounce";
-import { CreateTodoRequest, UpdateTodoRequest, Todo } from "@/lib/types";
-import { Header } from "@/components/Header";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { useAuth } from "@/contexts/auth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useScreenReaderAnnounce } from "@/components/ScreenReaderAnnouncer";
+import { useTodos } from "@/features/todos";
+import { useDebounce } from "@/shared/hooks/useDebounce";
+import { CreateTodoRequest, UpdateTodoRequest, Todo } from "@/features/todos";
+import { Header } from "@/shared/components/Header";
+import { ProtectedRoute } from "@/shared/components/ProtectedRoute";
+import { useAuth } from "@/features/auth";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { useScreenReaderAnnounce } from "@/shared/components/ScreenReaderAnnouncer";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { TodoItem } from "@/components/todos/TodoItem";
-import { CreateTodoModal } from "@/components/todos/CreateTodoModal";
-import { EditTodoModal } from "@/components/todos/EditTodoModal";
-import { DeleteTodoDialog } from "@/components/todos/DeleteTodoDialog";
+} from "@/shared/components/ui/select";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { TodoItem } from "@/features/todos";
+import { CreateTodoModal } from "@/features/todos";
+import { EditTodoModal } from "@/features/todos";
+import { DeleteTodoDialog } from "@/features/todos";
 import { Plus, Search } from "lucide-react";
 
 const ITEMS_PER_PAGE = 20;

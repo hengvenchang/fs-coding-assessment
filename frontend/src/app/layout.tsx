@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/contexts/auth";
-import { ProgressProvider } from "@/contexts/progress";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { ProgressBarWrapper } from "@/components/ProgressBarWrapper";
+import { AuthProvider } from "@/features/auth";
+import { ProgressProvider } from "@/shared/contexts/progress";
+import { ErrorBoundary } from "@/shared/components/ErrorBoundary";
+import { ProgressBarWrapper } from "@/shared/components/ProgressBarWrapper";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({
